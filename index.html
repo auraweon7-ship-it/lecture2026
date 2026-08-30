@@ -1,0 +1,686 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>회귀분석 7주차 강의홈</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;700&display=swap">
+<style>
+/* ===== 토큰 : 라이트(기본) — 화이트·연한 하늘빛 회색·블러플 ===== */
+:root{
+  --canvas:#ffffff;
+  --mist:#f6f9fc;
+  --navy:#0a2540;
+  --navy-2:#0e2e4d;
+  --ink:#0a2540;
+  --ink-2:#425466;
+  --ink-3:#697386;
+  --hairline:#e6ebf1;
+  --blurple:#635bff;
+  --blurple-deep:#4f46e5;
+  --cyan:#00d4ff;
+  --link:#635bff;
+  --card:#ffffff;
+  --shadow-sm:0 2px 5px -1px rgba(50,50,93,.15), 0 1px 3px -1px rgba(0,0,0,.18);
+  --shadow-lg:0 50px 100px -20px rgba(50,50,93,.18), 0 30px 60px -30px rgba(0,0,0,.28);
+  --wedge:4vw;
+  --grad:linear-gradient(101deg,#a960ee 2%,#ff333d 32%,#90e0ff 66%,#ffcb57 98%);
+  --b-todo-fg:#983705;  --b-todo-bg:#fcedb9;
+  --b-sent-fg:#3f4eae;  --b-sent-bg:#dfe2fb;
+  --b-done-fg:#0e6245;  --b-done-bg:#cbf4c9;
+}
+/* ===== 어두운 구획 안에서만 바뀌는 값 ===== */
+.sec--dark{
+  --canvas:var(--navy);
+  --mist:var(--navy-2);
+  --ink:#ffffff;
+  --ink-2:#adbdcc;
+  --ink-3:#8ea0b3;
+  --hairline:rgba(255,255,255,.14);
+  --link:#7cc4ff;
+  --card:rgba(255,255,255,.06);
+  --b-todo-fg:#ffd88a;  --b-todo-bg:rgba(255,203,87,.16);
+  --b-sent-fg:#a5b4ff;  --b-sent-bg:rgba(99,91,255,.24);
+  --b-done-fg:#7ee0b8;  --b-done-bg:rgba(36,180,126,.18);
+}
+/* ===== 토큰 : 다크(시스템 설정, 명시적 라이트 선택 제외) ===== */
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --canvas:#0a1a2b;
+    --mist:#0e2338;
+    --navy:#061423;
+    --navy-2:#0b2135;
+    --ink:#ffffff;
+    --ink-2:#adbdcc;
+    --ink-3:#8ea0b3;
+    --hairline:rgba(255,255,255,.13);
+    --blurple:#7a73ff;
+    --link:#a5b4ff;
+    --card:#0f2740;
+    --shadow-sm:0 2px 5px -1px rgba(0,0,0,.5), 0 1px 3px -1px rgba(0,0,0,.6);
+    --shadow-lg:0 50px 100px -20px rgba(0,0,0,.6), 0 30px 60px -30px rgba(0,0,0,.8);
+    --b-todo-fg:#ffd88a;  --b-todo-bg:rgba(255,203,87,.16);
+    --b-sent-fg:#a5b4ff;  --b-sent-bg:rgba(99,91,255,.24);
+    --b-done-fg:#7ee0b8;  --b-done-bg:rgba(36,180,126,.18);
+  }
+}
+/* ===== 토큰 : 다크(사용자가 직접 선택) ===== */
+:root[data-theme="dark"]{
+  --canvas:#0a1a2b;
+  --mist:#0e2338;
+  --navy:#061423;
+  --navy-2:#0b2135;
+  --ink:#ffffff;
+  --ink-2:#adbdcc;
+  --ink-3:#8ea0b3;
+  --hairline:rgba(255,255,255,.13);
+  --blurple:#7a73ff;
+  --link:#a5b4ff;
+  --card:#0f2740;
+  --shadow-sm:0 2px 5px -1px rgba(0,0,0,.5), 0 1px 3px -1px rgba(0,0,0,.6);
+  --shadow-lg:0 50px 100px -20px rgba(0,0,0,.6), 0 30px 60px -30px rgba(0,0,0,.8);
+  --b-todo-fg:#ffd88a;  --b-todo-bg:rgba(255,203,87,.16);
+  --b-sent-fg:#a5b4ff;  --b-sent-bg:rgba(99,91,255,.24);
+  --b-done-fg:#7ee0b8;  --b-done-bg:rgba(36,180,126,.18);
+}
+
+*{box-sizing:border-box;}
+body{
+  margin:0;overflow-x:hidden;
+  background:var(--canvas);
+  color:var(--ink-2);
+  font-family:"Inter","Noto Sans KR",-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+  font-size:17px;line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,h4,p{margin:0;}
+h1,h2,h3{color:var(--ink);font-weight:700;letter-spacing:-0.02em;text-wrap:balance;}
+a{color:var(--link);text-decoration:none;font-weight:500;}
+a:hover{text-decoration:underline;}
+a:focus-visible,summary:focus-visible{outline:2px solid var(--blurple);outline-offset:3px;border-radius:6px;}
+.inner{max-width:1080px;margin:0 auto;padding:0 24px;position:relative;z-index:1;}
+
+/* ===== 구획 : 비스듬히 잘린 배경(스트라이프식 웨지) ===== */
+.sec{position:relative;padding:88px 0;}
+.sec > .bg{position:absolute;inset:0;background:var(--sec-bg,var(--canvas));z-index:0;}
+/* 앞 구획 위로 겹쳐 올라가 대각선 경계를 만든다 */
+.sec--wedge{margin-top:calc(-1 * var(--wedge));padding-top:calc(88px + var(--wedge));}
+.sec--wedge > .bg{clip-path:polygon(0 var(--wedge), 100% 0, 100% 100%, 0 100%);}
+.sec--mist{--sec-bg:var(--mist);}
+.sec--dark{--sec-bg:var(--navy);color:var(--ink-2);}
+.eyebrow{
+  display:block;font-size:15px;font-weight:600;line-height:1.4;
+  letter-spacing:.06em;text-transform:uppercase;color:var(--blurple);margin-bottom:14px;
+}
+.sec--dark .eyebrow{color:var(--cyan);}
+.sec-head{margin-bottom:44px;}
+.sec-head h2{font-size:clamp(30px,4vw,38px);line-height:1.16;}
+.sec-head .sub{margin-top:12px;font-size:18px;color:var(--ink-2);max-width:60ch;}
+.sec-head .row{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap;}
+
+/* ===== 상단 내비 ===== */
+.nav{
+  position:sticky;top:0;z-index:40;
+  background:color-mix(in srgb,var(--canvas) 88%,transparent);
+  -webkit-backdrop-filter:saturate(180%) blur(14px);
+  backdrop-filter:saturate(180%) blur(14px);
+  border-bottom:1px solid var(--hairline);
+}
+.nav .inner{display:flex;align-items:center;gap:26px;min-height:66px;flex-wrap:wrap;padding-top:10px;padding-bottom:10px;}
+.nav .mark{display:flex;align-items:center;gap:10px;}
+.nav .dot{width:26px;height:26px;border-radius:8px;background:var(--grad);flex:none;}
+.nav .course{color:var(--ink);font-size:17px;font-weight:700;letter-spacing:-0.01em;}
+.nav .links{display:flex;gap:22px;margin-left:auto;flex-wrap:wrap;}
+.nav .links a{color:var(--ink);font-size:15px;font-weight:500;}
+.nav .links a:hover{color:var(--blurple);text-decoration:none;}
+
+/* ===== 버튼 : 알약 + 화살표 ===== */
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:9px 18px;border-radius:9999px;border:1px solid transparent;
+  background:var(--blurple);color:#ffffff;font-size:16px;font-weight:600;line-height:1.4;
+  cursor:pointer;transition:background .15s ease,transform .15s ease;
+}
+.btn:hover{background:var(--blurple-deep);text-decoration:none;color:#fff;}
+.btn .arw{transition:transform .15s ease;}
+.btn:hover .arw{transform:translateX(3px);}
+.btn--soft{background:rgba(99,91,255,.1);color:var(--blurple);}
+.btn--soft:hover{background:rgba(99,91,255,.18);color:var(--blurple);}
+.sec--dark .btn--soft{background:rgba(255,255,255,.12);color:#fff;}
+.btn--sm{padding:7px 15px;font-size:15px;}
+.arrow-link{font-weight:600;display:inline-flex;align-items:center;gap:6px;}
+.arrow-link .arw{transition:transform .15s ease;}
+.arrow-link:hover{text-decoration:none;}
+.arrow-link:hover .arw{transform:translateX(3px);}
+
+/* ===== ① 상단 요약 : 이번 주 주제 + 가장 가까운 마감 ===== */
+.hero{position:relative;padding:76px 0 96px;overflow:hidden;}
+.hero .glow{
+  position:absolute;right:-8%;top:-40%;width:760px;height:500px;border-radius:50%;
+  background:var(--grad);filter:blur(110px);opacity:.24;z-index:0;pointer-events:none;
+}
+.hero .grid{display:grid;gap:44px;align-items:center;}
+@media (min-width:900px){.hero .grid{grid-template-columns:1.15fr .85fr;}}
+.hero h1{font-size:clamp(42px,6.4vw,62px);line-height:1.06;letter-spacing:-0.03em;}
+.hero .lead{margin-top:20px;font-size:20px;line-height:1.6;color:var(--ink-2);max-width:38ch;}
+.hero .cta-row{margin-top:30px;display:flex;gap:14px;flex-wrap:wrap;}
+.due-card{
+  background:var(--card);border:1px solid var(--hairline);border-radius:14px;
+  padding:30px;box-shadow:var(--shadow-lg);display:flex;flex-direction:column;gap:10px;
+}
+.due-card .top{font-size:14px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);}
+.due-card .what{color:var(--ink);font-size:24px;font-weight:700;letter-spacing:-0.02em;line-height:1.25;}
+.due-card .when{color:var(--ink);font-size:32px;font-weight:700;letter-spacing:-0.02em;font-variant-numeric:tabular-nums;}
+.due-card .tz{font-size:14px;color:var(--ink-3);}
+.due-card .bar{height:5px;border-radius:9999px;background:var(--grad);margin:4px 0 2px;}
+
+/* ===== 공통 : 상태 배지(색 + 글자) ===== */
+.badge{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:4px 11px;border-radius:9999px;
+  font-size:13px;font-weight:600;line-height:1.5;white-space:nowrap;letter-spacing:0;
+}
+.badge::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor;}
+.badge.is-todo{color:var(--b-todo-fg);background:var(--b-todo-bg);}
+.badge.is-sent{color:var(--b-sent-fg);background:var(--b-sent-bg);}
+.badge.is-done{color:var(--b-done-fg);background:var(--b-done-bg);}
+.tbd{
+  display:inline-block;font-size:12px;font-weight:500;color:var(--ink-3);
+  border:1px dashed var(--hairline);border-radius:9999px;padding:1px 9px;white-space:nowrap;
+}
+
+/* ===== ② 공지 ===== */
+.notices{display:grid;gap:24px;}
+@media (min-width:760px){.notices{grid-template-columns:repeat(3,1fr);}}
+.notice{
+  background:var(--card);border:1px solid var(--hairline);border-radius:12px;padding:26px;
+  box-shadow:var(--shadow-sm);display:flex;flex-direction:column;gap:10px;
+}
+.notice .date{font-size:13px;font-weight:600;color:var(--ink-3);font-variant-numeric:tabular-nums;}
+.notice h3{font-size:20px;line-height:1.3;}
+.notice p{font-size:15px;color:var(--ink-2);}
+.notice .arrow-link{margin-top:auto;font-size:15px;}
+
+/* ===== ③ 이번 주 학습 ===== */
+.rows{list-style:none;margin:0;padding:0;border-top:1px solid var(--hairline);}
+.rows li{
+  padding:20px 2px;border-bottom:1px solid var(--hairline);
+  display:flex;align-items:center;gap:18px;flex-wrap:wrap;
+}
+.rows .kind{
+  font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--blurple);min-width:84px;
+}
+.rows .name{flex:1 1 260px;color:var(--ink);font-size:18px;font-weight:600;letter-spacing:-0.01em;}
+.rows .meta{font-size:15px;color:var(--ink-3);font-variant-numeric:tabular-nums;}
+
+/* ===== ④ 과제 ===== */
+.tasks{display:grid;gap:20px;}
+@media (min-width:820px){.tasks{grid-template-columns:repeat(3,1fr);}}
+.task{
+  background:var(--card);border:1px solid var(--hairline);border-radius:14px;padding:26px;
+  display:flex;flex-direction:column;gap:12px;
+}
+.task .no{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--cyan);}
+.task h3{font-size:20px;line-height:1.3;}
+.task .desc{font-size:15px;color:var(--ink-2);}
+.task .files{font-size:14px;color:var(--ink-3);}
+.task .when{
+  margin-top:auto;padding-top:14px;border-top:1px solid var(--hairline);
+  display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+  font-size:14px;color:var(--ink-2);font-variant-numeric:tabular-nums;
+}
+.task .closed{color:var(--ink-3);display:block;}
+
+/* ===== ⑤ 전체 주차 : details/summary, 자바스크립트 없음 ===== */
+.weeks{border-top:1px solid var(--hairline);}
+details.week{border-bottom:1px solid var(--hairline);}
+.week summary{cursor:pointer;list-style:none;padding:18px 2px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
+.week summary::-webkit-details-marker{display:none;}
+.week summary::after{content:"펼치기 ↓";margin-left:auto;font-size:14px;font-weight:600;color:var(--blurple);}
+.week[open] summary::after{content:"접기 ↑";}
+.week summary:hover .topic{color:var(--blurple);}
+.week .no{
+  font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--ink-3);min-width:52px;font-variant-numeric:tabular-nums;
+}
+.week .topic{flex:1 1 240px;color:var(--ink);font-size:18px;font-weight:600;letter-spacing:-0.01em;}
+.week .date{font-size:14px;color:var(--ink-3);font-variant-numeric:tabular-nums;}
+.week .body{padding:2px 2px 24px 68px;}
+.week .body ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:10px;}
+.week .body li{display:flex;align-items:center;gap:12px;flex-wrap:wrap;font-size:16px;color:var(--ink-2);}
+.week .body .lbl{
+  font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--ink-3);min-width:78px;
+}
+.week.current .topic{color:var(--blurple);}
+
+/* ===== ⑥ 질문과 도움 ===== */
+.help{display:grid;gap:24px;}
+@media (min-width:760px){.help{grid-template-columns:repeat(2,1fr);}}
+.help .card{
+  background:var(--card);border:1px solid var(--hairline);border-radius:12px;padding:28px;
+  box-shadow:var(--shadow-sm);display:flex;flex-direction:column;gap:10px;
+}
+.help h3{font-size:20px;line-height:1.3;}
+.help p{font-size:16px;color:var(--ink-2);}
+
+/* ===== 꼬리말 ===== */
+.foot{background:var(--mist);padding:56px 0 64px;border-top:1px solid var(--hairline);}
+.foot .cols{display:grid;gap:28px;}
+@media (min-width:760px){.foot .cols{grid-template-columns:repeat(3,1fr);}}
+.foot h4{
+  margin:0 0 10px;font-size:12px;font-weight:600;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--ink-3);
+}
+.foot ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;}
+.foot li a{font-size:15px;color:var(--ink-2);font-weight:400;}
+.foot li a:hover{color:var(--blurple);}
+.foot .legal{
+  margin-top:36px;padding-top:22px;border-top:1px solid var(--hairline);
+  font-size:13px;line-height:1.7;color:var(--ink-3);display:flex;flex-direction:column;gap:6px;
+}
+
+@media (max-width:759px){
+  .sec{padding:64px 0;}
+  .hero{padding:56px 0 72px;}
+  .week .body{padding-left:2px;}
+}
+@media (prefers-reduced-motion:reduce){
+  .btn,.btn .arw,.arrow-link .arw{transition:none;}
+  .btn:hover .arw,.arrow-link:hover .arw{transform:none;}
+}
+</style>
+</head>
+<body>
+
+<!-- ① 상단 : 내비게이션 -->
+<nav class="nav" aria-label="강의 메뉴">
+  <div class="inner">
+    <span class="mark"><span class="dot" aria-hidden="true"></span><span class="course">AI 데이터 분석 입문</span></span>
+    <span class="links">
+      <a href="#h-notice">공지</a>
+      <a href="#h-week">이번 주</a>
+      <a href="#h-task">과제</a>
+      <a href="#h-all">전체 주차</a>
+      <a href="#h-help">질문</a>
+    </span>
+    <a class="btn btn--sm" href="#h-task">과제 3 제출 <span class="arw" aria-hidden="true">→</span></a>
+  </div>
+</nav>
+
+<!-- ① 상단 요약 : 이번 주 주제와 가장 가까운 마감 -->
+<section class="hero" aria-label="이번 주 요약">
+  <span class="glow" aria-hidden="true"></span>
+  <div class="inner">
+    <div class="grid">
+      <div>
+        <span class="eyebrow">7주차 · 10월 12일–16일</span>
+        <h1>회귀분석 기초</h1>
+        <p class="lead">두 변수의 관계를 하나의 직선으로 설명하는 법을 배웁니다. 영상과 슬라이드, 실습 데이터가 준비되어 있습니다.</p>
+        <div class="cta-row">
+          <a class="btn" href="#h-week">이번 주 자료 보기 <span class="arw" aria-hidden="true">→</span></a>
+          <a class="btn btn--soft" href="#h-all">전체 주차 보기</a>
+        </div>
+      </div>
+      <aside class="due-card">
+        <span class="top">가장 가까운 마감</span>
+        <span class="what">과제 3 · 단순회귀 모형 만들기</span>
+        <span class="when">10월 16일 금 23:59</span>
+        <span class="bar" aria-hidden="true"></span>
+        <span><span class="badge is-todo">미제출</span></span>
+        <span class="tz">한국 시간(KST, UTC+9) 기준</span>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<!-- ② 공지 : 최근 3건, 최신순 -->
+<section class="sec" aria-labelledby="h-notice">
+  <div class="bg" aria-hidden="true"></div>
+  <div class="inner">
+    <div class="sec-head">
+      <div class="row">
+        <div>
+          <span class="eyebrow">공지</span>
+          <h2 id="h-notice">최근 알림 3건</h2>
+        </div>
+        <a class="arrow-link" href="#">공지 전체 보기 <span class="arw" aria-hidden="true">→</span></a>
+      </div>
+    </div>
+    <div class="notices">
+      <article class="notice">
+        <span class="date">2026년 10월 13일</span>
+        <h3>조교 상담 일정</h3>
+        <p>중간고사 전까지 상담을 수요일 오후로 옮깁니다. 방문 전 이메일로 시간을 정해 주세요.</p>
+        <a class="arrow-link" href="#">자세히 보기 <span class="arw" aria-hidden="true">→</span></a>
+      </article>
+      <article class="notice">
+        <span class="date">2026년 10월 12일</span>
+        <h3>중간고사 범위</h3>
+        <p>1주차부터 7주차까지, 회귀분석 기초를 포함합니다. 시험은 8주차 수업 시간에 봅니다.</p>
+        <a class="arrow-link" href="#">자세히 보기 <span class="arw" aria-hidden="true">→</span></a>
+      </article>
+      <article class="notice">
+        <span class="date">2026년 10월 8일</span>
+        <h3>휴강 안내</h3>
+        <p>10월 9일 금요일은 공휴일로 휴강합니다. 해당 회차 영상은 6주차 자료에 올려 두었습니다.</p>
+        <a class="arrow-link" href="#">자세히 보기 <span class="arw" aria-hidden="true">→</span></a>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ③ 이번 주 학습 : 비스듬한 연회색 구획 -->
+<section class="sec sec--mist sec--wedge" aria-labelledby="h-week">
+  <div class="bg" aria-hidden="true"></div>
+  <div class="inner">
+    <div class="sec-head">
+      <span class="eyebrow">이번 주 학습</span>
+      <h2 id="h-week">7주차 자료</h2>
+      <p class="sub">영상을 먼저 보고 슬라이드로 정리한 뒤, 실습 데이터를 열어 과제 3으로 이어집니다.</p>
+    </div>
+    <ul class="rows">
+      <li>
+        <span class="kind">영상</span>
+        <span class="name">회귀분석 기초 — 직선으로 관계 설명하기</span>
+        <span class="meta">42분</span>
+      </li>
+      <li>
+        <span class="kind">슬라이드</span>
+        <span class="name">7주차 강의 슬라이드</span>
+        <span class="meta">PDF · 38쪽</span>
+      </li>
+      <li>
+        <span class="kind">실습</span>
+        <span class="name">주택 가격 실습 데이터</span>
+        <span class="meta">week07_housing.csv · 1,460행</span>
+      </li>
+      <li>
+        <span class="kind">읽을거리</span>
+        <span class="name">교재 5장 「단순선형회귀」</span>
+        <span class="meta">121~148쪽</span>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<!-- ④ 과제 : 비스듬한 남색 구획, 상태 배지 -->
+<section class="sec sec--dark sec--wedge" aria-labelledby="h-task">
+  <div class="bg" aria-hidden="true"></div>
+  <div class="inner">
+    <div class="sec-head">
+      <span class="eyebrow">과제</span>
+      <h2 id="h-task">제출 현황</h2>
+      <p class="sub">모든 마감은 한국 시간(KST, UTC+9) 기준입니다. 지각 제출 규정은 자주 묻는 질문에 있습니다.</p>
+    </div>
+    <div class="tasks">
+      <article class="task">
+        <span class="no">과제 1</span>
+        <h3>공공데이터 살펴보기</h3>
+        <p class="desc">관심 있는 공공데이터 한 건을 골라 변수 구성과 결측치를 정리합니다.</p>
+        <p class="files">제출물 · 주피터 노트북(.ipynb) 1개, 요약 PDF 1쪽</p>
+        <span class="when">
+          <span>마감 9월 18일 금 23:59<span class="closed">마감 지났음</span></span>
+          <span class="badge is-done">채점 완료</span>
+        </span>
+      </article>
+      <article class="task">
+        <span class="no">과제 2</span>
+        <h3>데이터 정제와 탐색</h3>
+        <p class="desc">4·5주차 실습 데이터를 정제하고, 그래프 세 개로 데이터의 특징을 설명합니다.</p>
+        <p class="files">제출물 · 주피터 노트북(.ipynb) 1개, 그래프 이미지 3장</p>
+        <span class="when">
+          <span>마감 10월 2일 금 23:59<span class="closed">마감 지났음</span></span>
+          <span class="badge is-sent">제출</span>
+        </span>
+      </article>
+      <article class="task">
+        <span class="no">과제 3</span>
+        <h3>단순회귀 모형 만들기</h3>
+        <p class="desc">주택 가격 데이터로 단순회귀 모형을 만들고, 기울기와 절편이 뜻하는 바를 문장으로 설명합니다.</p>
+        <p class="files">제출물 · 주피터 노트북(.ipynb) 1개, 해석 A4 1쪽</p>
+        <span class="when">
+          <span>마감 10월 16일 금 23:59<span class="closed">마감 전</span></span>
+          <span class="badge is-todo">미제출</span>
+        </span>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ⑤ 전체 주차 : 지난 주차는 기본 접힘, 7주차만 펼침 -->
+<section class="sec sec--wedge" aria-labelledby="h-all">
+  <div class="bg" aria-hidden="true"></div>
+  <div class="inner">
+    <div class="sec-head">
+      <div class="row">
+        <div>
+          <span class="eyebrow">전체 주차</span>
+          <h2 id="h-all">2026학년도 2학기 · 15주</h2>
+        </div>
+        <span class="sub" style="margin:0;font-size:15px;color:var(--ink-3);">7주차만 펼쳐져 있습니다</span>
+      </div>
+    </div>
+    <div class="weeks">
+
+      <details class="week">
+        <summary><span class="no">1주</span><span class="topic">강의 소개와 데이터 분석의 흐름</span><span class="date">8/31~9/4 · 지난 주차</span></summary>
+        <div class="body"><ul>
+          <li><span class="lbl">영상</span>데이터 분석은 무엇을 하는 일인가 · 36분</li>
+          <li><span class="lbl">슬라이드</span>1주차 강의 슬라이드 · PDF 24쪽</li>
+          <li><span class="lbl">실습</span>주피터 노트북 설치와 실행 안내</li>
+        </ul></div>
+      </details>
+
+      <details class="week">
+        <summary><span class="no">2주</span><span class="topic">파이썬과 주피터 환경 익히기</span><span class="date">9/7~9/11 · 지난 주차</span></summary>
+        <div class="body"><ul>
+          <li><span class="lbl">영상</span>변수, 리스트, 반복문 · 45분</li>
+          <li><span class="lbl">슬라이드</span>2주차 강의 슬라이드 · PDF 31쪽</li>
+          <li><span class="lbl">실습</span>week02_practice.ipynb</li>
+        </ul></div>
+      </details>
+
+      <details class="week">
+        <summary><span class="no">3주</span><span class="topic">표 데이터 다루기 — pandas 기초</span><span class="date">9/14~9/18 · 지난 주차</span></summary>
+        <div class="body"><ul>
+          <li><span class="lbl">영상</span>데이터프레임 읽기와 고르기 · 44분</li>
+          <li><span class="lbl">슬라이드</span>3주차 강의 슬라이드 · PDF 35쪽</li>
+          <li><span class="lbl">실습</span>week03_population.csv</li>
+          <li><span class="lbl">과제</span>과제 1 · 9월 18일 금 23:59 마감, 마감 지났음 <span class="badge is-done">채점 완료</span></li>
+        </ul></div>
+      </details>
+
+      <details class="week">
+        <summary><span class="no">4주</span><span class="topic">데이터 정제 — 결측치와 이상치</span><span class="date">9/21~9/25 · 지난 주차</span></summary>
+        <div class="body"><ul>
+          <li><span class="lbl">영상</span>빠진 값과 튀는 값을 다루는 기준 · 41분</li>
+          <li><span class="lbl">슬라이드</span>4주차 강의 슬라이드 · PDF 33쪽</li>
+          <li><span class="lbl">실습</span>week04_sales_raw.csv</li>
+        </ul></div>
+      </details>
+
+      <details class="week">
+        <summary><span class="no">5주</span><span class="topic">탐색적 데이터 분석과 시각화</span><span class="date">9/28~10/2 · 지난 주차</span></summary>
+        <div class="body"><ul>
+          <li><span class="lbl">영상</span>그래프로 데이터에 질문하기 · 47분</li>
+          <li><span class="lbl">슬라이드</span>5주차 강의 슬라이드 · PDF 40쪽</li>
+          <li><span class="lbl">실습</span>week05_eda.ipynb</li>
+          <li><span class="lbl">과제</span>과제 2 · 10월 2일 금 23:59 마감, 마감 지났음 <span class="badge is-sent">제출</span></li>
+        </ul></div>
+      </details>
+
+      <details class="week">
+        <summary><span class="no">6주</span><span class="topic">기술통계와 분포 읽기</span><span class="date">10/5~10/9 · 지난 주차</span></summary>
+        <div class="body"><ul>
+          <li><span class="lbl">영상</span>평균, 중앙값, 분산이 말하는 것 · 39분</li>
+          <li><span class="lbl">슬라이드</span>6주차 강의 슬라이드 · PDF 29쪽</li>
+          <li><span class="lbl">실습</span>week06_distribution.csv</li>
+          <li><span class="lbl">안내</span>10월 9일 금요일 휴강 · 보충 영상 32분 포함</li>
+        </ul></div>
+      </details>
+
+      <!-- 이번 주차만 기본 펼침 -->
+      <details class="week current" open>
+        <summary><span class="no">7주</span><span class="topic">회귀분석 기초</span><span class="date">10/12~10/16 · 이번 주</span></summary>
+        <div class="body"><ul>
+          <li><span class="lbl">영상</span>직선으로 관계 설명하기 · 42분</li>
+          <li><span class="lbl">슬라이드</span>7주차 강의 슬라이드 · PDF 38쪽</li>
+          <li><span class="lbl">실습</span>week07_housing.csv · 1,460행</li>
+          <li><span class="lbl">읽을거리</span>교재 5장 「단순선형회귀」 121~148쪽</li>
+          <li><span class="lbl">과제</span>과제 3 · 10월 16일 금 23:59 마감 <span class="badge is-todo">미제출</span></li>
+        </ul></div>
+      </details>
+
+      <details class="week">
+        <summary><span class="no">8주</span><span class="topic">중간고사</span><span class="date">10/19~10/23 · 예정</span></summary>
+        <div class="body"><ul>
+          <li><span class="lbl">범위</span>1주차~7주차 전체, 회귀분석 기초 포함</li>
+          <li><span class="lbl">방식</span>수업 시간 내 필기시험 · 계산기 지참</li>
+          <li><span class="lbl">안내</span>시험 안내문 PDF 4쪽</li>
+        </ul></div>
+      </details>
+
+      <details class="week">
+        <summary><span class="no">9주</span><span class="topic">다중회귀와 변수 선택</span><span class="date">10/26~10/30 · 예정</span></summary>
+        <div class="body"><ul>
+          <li><span class="lbl">영상</span>설명 변수를 늘리면 생기는 일 · 46분</li>
+          <li><span class="lbl">슬라이드</span>9주차 강의 슬라이드 · 공개 예정</li>
+          <li><span class="lbl">실습</span>week09_multi.csv · 공개 예정</li>
+        </ul></div>
+      </details>
+
+      <details class="week">
+        <summary><span class="no">10주</span><span class="topic">회귀 진단 — 잔차와 다중공선성</span><span class="date">11/2~11/6 · 예정</span></summary>
+        <div class="body"><ul>
+          <li><span class="lbl">영상</span>모형이 틀리는 방식을 확인하기 · 공개 예정</li>
+          <li><span class="lbl">슬라이드</span>10주차 강의 슬라이드 · 공개 예정</li>
+          <li><span class="lbl">실습</span>week10_diagnostics.ipynb · 공개 예정</li>
+        </ul></div>
+      </details>
+
+      <details class="week">
+        <summary><span class="no">11주</span><span class="topic">분류 문제와 로지스틱 회귀</span><span class="date">11/9~11/13 · 예정</span></summary>
+        <div class="body"><ul>
+          <li><span class="lbl">영상</span>예, 아니오를 예측하기 · 공개 예정</li>
+          <li><span class="lbl">슬라이드</span>11주차 강의 슬라이드 · 공개 예정</li>
+          <li><span class="lbl">실습</span>week11_churn.csv · 공개 예정</li>
+        </ul></div>
+      </details>
+
+      <details class="week">
+        <summary><span class="no">12주</span><span class="topic">모델 평가 — 교차검증과 지표 읽기</span><span class="date">11/16~11/20 · 예정</span></summary>
+        <div class="body"><ul>
+          <li><span class="lbl">영상</span>정확도만 보면 안 되는 이유 · 공개 예정</li>
+          <li><span class="lbl">슬라이드</span>12주차 강의 슬라이드 · 공개 예정</li>
+          <li><span class="lbl">실습</span>week12_validation.ipynb · 공개 예정</li>
+        </ul></div>
+      </details>
+
+      <details class="week">
+        <summary><span class="no">13주</span><span class="topic">시계열 데이터 다루기</span><span class="date">11/23~11/27 · 예정</span></summary>
+        <div class="body"><ul>
+          <li><span class="lbl">영상</span>시간 순서가 있는 데이터 · 공개 예정</li>
+          <li><span class="lbl">슬라이드</span>13주차 강의 슬라이드 · 공개 예정</li>
+          <li><span class="lbl">실습</span>week13_timeseries.csv · 공개 예정</li>
+        </ul></div>
+      </details>
+
+      <details class="week">
+        <summary><span class="no">14주</span><span class="topic">분석 결과 전달하기</span><span class="date">11/30~12/4 · 예정</span></summary>
+        <div class="body"><ul>
+          <li><span class="lbl">영상</span>표와 그래프로 결론을 설득하기 · 공개 예정</li>
+          <li><span class="lbl">슬라이드</span>14주차 강의 슬라이드 · 공개 예정</li>
+          <li><span class="lbl">실습</span>리포트 양식과 예시 · 공개 예정</li>
+        </ul></div>
+      </details>
+
+      <details class="week">
+        <summary><span class="no">15주</span><span class="topic">기말고사</span><span class="date">12/7~12/11 · 예정</span></summary>
+        <div class="body"><ul>
+          <li><span class="lbl">범위</span>9주차~14주차 중심, 회귀 개념 전반 포함</li>
+          <li><span class="lbl">방식</span>수업 시간 내 필기시험</li>
+          <li><span class="lbl">안내</span>시험 안내문 · 14주차에 공개</li>
+        </ul></div>
+      </details>
+
+    </div>
+  </div>
+</section>
+
+<!-- ⑥ 질문과 도움 -->
+<section class="sec sec--mist" aria-labelledby="h-help">
+  <div class="bg" aria-hidden="true"></div>
+  <div class="inner">
+    <div class="sec-head">
+      <span class="eyebrow">질문과 도움</span>
+      <h2 id="h-help">막히면 여기로</h2>
+      <p class="sub">김하늘 교수 · 수강 48명</p>
+    </div>
+    <div class="help">
+      <div class="card">
+        <h3>수업 게시판</h3>
+        <p>과제와 강의 내용에 관한 질문은 게시판에 올려 주세요. 같은 질문을 다른 수강생도 함께 봅니다.</p>
+        <p><a class="arrow-link" href="#">게시판 열기 <span class="arw" aria-hidden="true">→</span></a></p>
+      </div>
+      <div class="card">
+        <h3>조교 이메일</h3>
+        <p>제출 오류나 개인 사정처럼 공개하기 어려운 내용은 이메일로 보내 주세요.</p>
+        <p>주소 <span class="tbd">확인 필요</span></p>
+      </div>
+      <div class="card">
+        <h3>상담 시간</h3>
+        <p>중간고사 전까지 매주 수요일 14:00~16:00입니다. 장소 <span class="tbd">확인 필요</span></p>
+        <p>변경 사항은 공지에서 확인할 수 있습니다.</p>
+      </div>
+      <div class="card">
+        <h3>자주 묻는 질문</h3>
+        <p>제출 방법, 재제출, 지각 제출 규정을 모아 두었습니다.</p>
+        <p><a class="arrow-link" href="#">FAQ 보기 <span class="arw" aria-hidden="true">→</span></a></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 꼬리말 : 링크 모음과 날짜·시간 기준 -->
+<footer class="foot">
+  <div class="inner">
+    <div class="cols">
+      <div>
+        <h4>학습</h4>
+        <ul>
+          <li><a href="#h-week">이번 주 자료</a></li>
+          <li><a href="#h-all">전체 주차</a></li>
+          <li><a href="#h-task">과제</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>안내</h4>
+        <ul>
+          <li><a href="#h-notice">공지</a></li>
+          <li><a href="#">중간고사 범위</a></li>
+          <li><a href="#">평가 방법</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>도움</h4>
+        <ul>
+          <li><a href="#h-help">수업 게시판</a></li>
+          <li><a href="#h-help">조교 이메일</a></li>
+          <li><a href="#">자주 묻는 질문</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="legal">
+      <span>모든 날짜와 시각은 한국 시간(KST, UTC+9) 기준입니다.</span>
+      <span>주차 주제와 날짜, 자료 분량, 과제 내용은 2026학년도 2학기 9월 1일 개강을 가정해 채운 예시입니다. 실제 강의계획서로 바꿔 주세요.</span>
+      <span><span class="tbd">확인 필요</span> 표시는 아직 확정되지 않은 항목입니다. 링크 주소도 실제 주소로 바꿔야 합니다.</span>
+      <span>AI 데이터 분석 입문 · 김하늘 교수 · 수강 48명</span>
+    </div>
+  </div>
+</footer>
+</body>
+</html>
